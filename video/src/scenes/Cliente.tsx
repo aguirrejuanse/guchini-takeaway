@@ -1,28 +1,28 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { Phone } from "../devices/Devices";
-import { BG, Copy, Mark, Pop, ScreenAt, SectionTitle, Tap, useLayout, useSpring } from "../kit";
+import { Phone, PHONE_VIEW } from "../devices/Devices";
+import { BG, Copy, Mark, Pop, ScreenAt, SectionTitle, useLayout, useSpring } from "../kit";
 import {
-  BranchSheet,
-  CART_TAP,
+  CarritoScreen,
   CartBar,
   CheckoutScreen,
-  GUCHICKEN_TAP,
-  HomeScreen,
-  MENU_SCROLL,
+  ConfirmacionScreen,
+  MenuScreen,
+  MENU_SCROLL_GUCHICKEN,
   PaymentScreen,
-  useScroll,
+  PedirScreen,
 } from "../screens/Customer";
+import { useScroll } from "../screens/web";
 import { C, FONTS } from "../theme";
 import { CUES, SCENES } from "../timing";
 
 const T = CUES.cliente;
 
 const STEPS = [
-  { from: 0, title: <>Entra al menú.</>, sub: "Su carta, sus fotos, sus precios." },
-  { from: T.sheet, title: <>Elige <Mark delay={T.sheet + 18}>dónde retira.</Mark></>, sub: "Ciudad, Chacras, Uspallata o Nueva Córdoba." },
-  { from: T.checkout, title: <>Avisa en cuánto <Mark delay={T.checkout + 18}>llega.</Mark></>, sub: "La cocina sabe cuándo arrancar." },
-  { from: T.tapPay, title: <>Paga con <Mark color="#9fdcf6" delay={T.tapPay + 18}>Mercado Pago.</Mark></>, sub: "Sin efectivo, sin errores, sin fila." },
+  { from: 0, title: <>Elige <Mark delay={T.pedir + 18}>dónde retira.</Mark></>, sub: "Cada sucursal, con su menú y su stock." },
+  { from: T.menu, title: <>Arma su <Mark delay={T.menu + 18}>pedido.</Mark></>, sub: "Toca, agrega, y la promo ya viene aplicada." },
+  { from: T.checkout, title: <>Avisa en cuánto <Mark delay={T.checkout + 18}>llega.</Mark></>, sub: "Ya, o programado para cuando llega." },
+  { from: T.scrollPay + 20, title: <>Paga con <Mark color="#9fdcf6" delay={T.scrollPay + 38}>Mercado Pago.</Mark></>, sub: "Sin efectivo, sin errores, sin fila." },
 ];
 
 const StepCopy: React.FC<{ portrait: boolean }> = ({ portrait }) => {
@@ -34,9 +34,7 @@ const StepCopy: React.FC<{ portrait: boolean }> = ({ portrait }) => {
         const next = STEPS[i + 1]?.from ?? SCENES.cliente + 30;
         return (
           <Pop key={i} delay={st.from + 4} exit={next - 10} style={{ position: "absolute", inset: 0 }}>
-            <div style={{ fontFamily: FONTS.display, fontSize: 30, letterSpacing: 4, color: C.tomato }}>
-              0{i + 1}
-            </div>
+            <div style={{ fontFamily: FONTS.display, fontSize: 30, letterSpacing: 4, color: C.tomato }}>0{i + 1}</div>
             <Copy size={portrait ? 70 : 84} style={{ marginTop: 6 }}>
               {st.title}
             </Copy>
@@ -48,12 +46,7 @@ const StepCopy: React.FC<{ portrait: boolean }> = ({ portrait }) => {
         {STEPS.map((_, i) => (
           <div
             key={i}
-            style={{
-              height: 8,
-              width: i === current ? 56 : 18,
-              borderRadius: 4,
-              background: i <= current ? C.ink : "rgba(44,24,16,0.15)",
-            }}
+            style={{ height: 8, width: i === current ? 56 : 18, borderRadius: 4, background: i <= current ? C.ink : "rgba(44,24,16,0.15)" }}
           />
         ))}
       </div>
@@ -61,12 +54,26 @@ const StepCopy: React.FC<{ portrait: boolean }> = ({ portrait }) => {
   );
 };
 
+const URLS = (frame: number) =>
+  frame < T.menu
+    ? "guchini.com.ar/pedir"
+    : frame < T.carrito
+      ? "guchini.com.ar/pedir/ciudad"
+      : frame < T.checkout
+        ? "guchini.com.ar/pedir/ciudad/carrito"
+        : frame < T.pago
+          ? "guchini.com.ar/pedir/ciudad/checkout"
+          : frame < T.confirmed
+            ? "guchini.com.ar/pago"
+            : "guchini.com.ar/confirmacion/10482";
+
 export const Cliente: React.FC = () => {
   const frame = useCurrentFrame();
   const { portrait } = useLayout();
   const enter = useSpring(0);
-  const scroll = useScroll(30, T.tapProduct - 25, MENU_SCROLL);
-  const tileGlow = frame >= T.tapProduct - 4 && frame < T.added ? 1 : 0;
+  const menuScroll = useScroll(T.scrollStart, T.scrollEnd, MENU_SCROLL_GUCHICKEN);
+  const checkoutScroll = useScroll(T.scrollPay, T.scrollPay + 30, 150);
+  const confirmScroll = useScroll(T.confirmed + 50, T.confirmed + 80, 140);
   const float = Math.sin(frame / 40) * 6;
 
   return (
@@ -90,19 +97,32 @@ export const Cliente: React.FC = () => {
         </div>
 
         <div style={{ transform: `translateX(${(1 - enter) * 200}px) translateY(${float}px)`, opacity: enter }}>
-          <Phone scale={portrait ? 1.22 : 1.04} darkStatus={frame >= T.paying}>
-            <ScreenAt from={0} to={T.checkout}>
-              <HomeScreen scroll={scroll} highlight={tileGlow} branch={frame >= T.added ? "Ciudad" : undefined} />
-              <Tap at={T.tapProduct} x={GUCHICKEN_TAP.x} y={GUCHICKEN_TAP.y} />
-              <BranchSheet at={T.sheet} pick={T.tapBranch} close={T.added} />
-              <CartBar at={T.added} />
-              <Tap at={T.tapCart} x={CART_TAP.x} y={CART_TAP.y} />
+          <Phone scale={portrait ? 1.22 : 1.04} url={URLS(frame)}>
+            <ScreenAt from={0} to={T.menu} slide={false}>
+              <PedirScreen tapBranch={T.tapBranch} />
             </ScreenAt>
-            <ScreenAt from={T.checkout} to={T.paying}>
-              <CheckoutScreen typeName={T.typeName} typePhone={T.typePhone} pickEta={T.pickEta} tapPay={T.tapPay} />
+            <ScreenAt from={T.menu} to={T.carrito} slide={false}>
+              <MenuScreen branch="ciudad" scroll={menuScroll} at={T.menu} addedAt={T.added} tapAdd={T.tapAdd} />
+              <CartBar at={T.added + 6} tap={T.tapCart} />
             </ScreenAt>
-            <ScreenAt from={T.paying}>
-              <PaymentScreen approved={T.approved} />
+            <ScreenAt from={T.carrito} to={T.checkout} slide={false}>
+              <CarritoScreen at={T.carrito} tapContinue={T.tapContinue} />
+            </ScreenAt>
+            <ScreenAt from={T.checkout} to={T.pago} slide={false}>
+              <CheckoutScreen
+                at={T.checkout}
+                scroll={checkoutScroll}
+                typeName={T.typeName}
+                typePhone={T.typePhone}
+                pickEta={T.pickEta}
+                tapPay={T.tapPay}
+              />
+            </ScreenAt>
+            <ScreenAt from={T.pago} to={T.confirmed} slide={false}>
+              <PaymentScreen tapApprove={T.tapApprove} processingAt={T.processing} viewH={PHONE_VIEW.h} />
+            </ScreenAt>
+            <ScreenAt from={T.confirmed} slide={false}>
+              <ConfirmacionScreen at={T.confirmed} scroll={confirmScroll} />
             </ScreenAt>
           </Phone>
         </div>

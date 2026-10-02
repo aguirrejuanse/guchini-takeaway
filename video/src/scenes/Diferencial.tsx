@@ -1,9 +1,10 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { Tablet } from "../devices/Devices";
-import { BG, Copy, Mark, Pill, Pop, SectionTitle, useLayout, useSpring } from "../kit";
-import { ColumnTitle, OrderCard, PanelHeader } from "../screens/Panel";
-import { C, FONTS } from "../theme";
+import { Browser } from "../devices/Devices";
+import { BG, Copy, Mark, Pop, SectionTitle, useLayout, useSpring } from "../kit";
+import { LocalPage, OrderCard, type OrderCardData } from "../screens/Panel";
+import { WebViewport } from "../screens/web";
+import { ars, BRANCHES, C, FONTS } from "../theme";
 import { CUES } from "../timing";
 
 const T = CUES.diferencial;
@@ -12,11 +13,6 @@ const T = CUES.diferencial;
 const START_MIN = 7;
 const NOW_MIN = 30;
 const PICKUP_MIN = 45;
-
-const COL_W = 549;
-const GAP = 26;
-const SLOT = 146;
-const TOP = 52;
 
 const useClock = () => {
   const frame = useCurrentFrame();
@@ -29,104 +25,60 @@ const useClock = () => {
   );
 };
 
-const Countdown: React.FC<{ minutesLeft: number; inKitchen: boolean }> = ({ minutesLeft, inKitchen }) =>
-  inKitchen ? (
-    <Pill bg={C.tomato} size={12}>
-      🔥 Entra a cocina
-    </Pill>
-  ) : (
-    <Pill bg={C.cream} color={C.ink} size={12}>
-      ⏱ en {minutesLeft} min
-    </Pill>
-  );
+const W = 1024;
+const uspallata = BRANCHES[2];
+/** es-AR time like the real app: "08:45 P. M." */
+const fmt = (min: number) => {
+  const h24 = 20 + Math.floor(min / 60);
+  const mm = String(min % 60).padStart(2, "0");
+  return `${String(h24 - 12).padStart(2, "0")}:${mm} P. M.`;
+};
 
-const SchedulingPanel: React.FC = () => {
+const LocalView: React.FC = () => {
   const frame = useCurrentFrame();
   const mm = useClock();
   const left = PICKUP_MIN - mm;
-  const promoted = frame >= T.promote;
-  const move = useSpring(T.promote, { damping: 16, stiffness: 90 });
-  const cardIn = useSpring(T.scheduledIn);
-  const ticking = frame >= T.clockStart && frame < T.clockEnd;
-  const lift = Math.sin(Math.PI * Math.min(move, 1));
-
+  const promoted = left <= 15 && frame >= T.promote;
+  const base = { branch: uspallata.shortName, branchName: uspallata.name };
+  const joaquin: OrderCardData = {
+    ...base,
+    number: "10483",
+    elapsed: promoted ? "hace 23 min" : mm - START_MIN < 1 ? "recién" : `hace ${mm - START_MIN} min`,
+    customer: "Joaquín",
+    status: "PAGADO",
+    items: ["2x Guchicken", "1x Boniatos"],
+    total: ars(33000),
+    scheduledTag: promoted ? undefined : `Programado · retira ${fmt(PICKUP_MIN)} · en ${left} min`,
+    tapAction: promoted ? undefined : undefined,
+    at: promoted ? T.promote : undefined,
+    highlight: promoted ? Math.max(0, 1 - (frame - T.promote) / 70) : 0,
+  };
+  const vale: OrderCardData = {
+    ...base,
+    number: "10486",
+    elapsed: "recién",
+    customer: "Vale",
+    status: "PAGADO",
+    items: ["1x Crunchini"],
+    total: ars(16500),
+    scheduledTag: `Programado · retira ${fmt(90)} · en ${90 - mm} min`,
+  };
+  const caro: OrderCardData = {
+    ...base,
+    number: "10484",
+    elapsed: `hace ${4 + (mm - START_MIN)} min`,
+    customer: "Caro",
+    status: "CONFIRMADO",
+    items: ["1x Mortadela"],
+    total: ars(14500),
+  };
+  const active = promoted ? [<OrderCard key="j" o={joaquin} />, <OrderCard key="c" o={caro} />] : [<OrderCard key="c" o={caro} />];
+  const scheduled = promoted ? [<OrderCard key="v" o={vale} />] : [<OrderCard key="j" o={joaquin} />, <OrderCard key="v" o={vale} />];
+  const cardIn = frame >= T.scheduledIn;
   return (
-    <>
-      <PanelHeader branch="Uspallata" address="Ruta N7 km 1151" clock={`20:${String(mm).padStart(2, "0")}`} />
-      <div style={{ position: "relative", margin: "26px 28px", height: 640 }}>
-        <div style={{ position: "absolute", left: 0, width: COL_W }}>
-          <ColumnTitle count={promoted ? 1 : 2} color={C.pine}>
-            Programados
-          </ColumnTitle>
-        </div>
-        <div style={{ position: "absolute", left: COL_W + GAP, width: COL_W }}>
-          <ColumnTitle count={promoted ? 3 : 2}>Cola activa</ColumnTitle>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            width: COL_W,
-            top: TOP + SLOT * 2 + 10,
-            fontSize: 14,
-            color: C.cocoa,
-            borderTop: `2px dashed ${C.line}`,
-            paddingTop: 12,
-          }}
-        >
-          Pasan solos a la cola 15 min antes del retiro.
-        </div>
-
-        {/* existing active queue — shifts down when the scheduled order arrives */}
-        {[
-          { id: "#10481", name: "Nico", items: "1× La Patrona", total: 14500, pickup: "Llega en 10 min", status: "EN PREPARACIÓN" as const },
-          { id: "#10484", name: "Caro", items: "1× Mortadela", total: 14500, pickup: "Lo antes posible", status: "CONFIRMADO" as const },
-        ].map((o, i) => (
-          <div
-            key={o.id}
-            style={{ position: "absolute", left: COL_W + GAP, width: COL_W, top: TOP + SLOT * (i + move) }}
-          >
-            <OrderCard {...o} />
-          </div>
-        ))}
-
-        {/* the other scheduled order slides up into the free slot */}
-        <div style={{ position: "absolute", left: 0, width: COL_W, top: TOP + SLOT * (1 - move), opacity: cardIn }}>
-          <OrderCard
-            id="#10486"
-            name="Vale"
-            items="1× Crunchini"
-            total={16500}
-            pickup="Retira 21:30"
-            badge={<Countdown minutesLeft={90 - mm} inKitchen={false} />}
-          />
-        </div>
-
-        {/* the hero order travels Programados → Cola activa */}
-        <div
-          style={{
-            position: "absolute",
-            width: COL_W,
-            left: (COL_W + GAP) * move,
-            top: TOP - lift * 30,
-            opacity: cardIn,
-            transform: `translateY(${(1 - cardIn) * 30}px) scale(${1 + lift * 0.04})`,
-            zIndex: 5,
-          }}
-        >
-          <OrderCard
-            id="#10483"
-            name="Joaquín"
-            items="2× Guchicken + Boniatos"
-            total={33000}
-            pickup={`Retira 20:45 · viene por Ruta 7`}
-            status={promoted ? "CONFIRMADO" : undefined}
-            glow={ticking || promoted ? 1 : 0.4}
-            badge={<Countdown minutesLeft={left} inKitchen={promoted} />}
-          />
-        </div>
-      </div>
-    </>
+    <WebViewport width={W}>
+      <LocalPage width={W} cols={2} filter="uspallata" active={active} scheduled={cardIn ? scheduled : []} />
+    </WebViewport>
   );
 };
 
@@ -193,9 +145,9 @@ export const Diferencial: React.FC = () => {
           </Pop>
         </div>
         <div style={{ opacity: tabletIn, transform: `translateX(${(1 - tabletIn) * 160}px)` }}>
-          <Tablet scale={portrait ? 0.74 : 0.86}>
-            <SchedulingPanel />
-          </Tablet>
+          <Browser scale={portrait ? 0.76 : 0.9} url="guchini.com.ar/local">
+            <LocalView />
+          </Browser>
         </div>
       </AbsoluteFill>
     </BG>

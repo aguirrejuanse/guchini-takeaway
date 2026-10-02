@@ -84,7 +84,7 @@ export const ScreenAt: React.FC<{ from: number; to?: number; slide?: boolean; ch
 };
 
 /** Finger-tap ripple centered on (x, y) inside the nearest positioned parent. */
-export const Tap: React.FC<{ at: number; x: number; y: number }> = ({ at, x, y }) => {
+export const Tap: React.FC<{ at: number; x: number | string; y: number | string }> = ({ at, x, y }) => {
   const frame = useCurrentFrame();
   const t = frame - at;
   if (t < -8 || t > 22) return null;
