@@ -12,6 +12,8 @@ import { useHydrated } from "@/lib/use-hydrated";
 
 const INPUT_CLASS =
   "w-full rounded-lg border border-ink/15 bg-white px-3.5 py-3 text-sm font-medium outline-none transition-shadow placeholder:text-cocoa/60 focus:border-sun focus:ring-2 focus:ring-sun/30";
+const INPUT_ERROR_CLASS =
+  "border-tomato focus:border-tomato focus:ring-tomato/30";
 
 const PICKUP_OPTIONS = [
   { min: 0, label: "Lo antes posible", hint: "≈20 min" },
@@ -32,6 +34,8 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [pickupMin, setPickupMin] = useState(0);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitAttempt, setSubmitAttempt] = useState(false);
 
   useEffect(() => {
     track("checkout_started");
@@ -39,7 +43,25 @@ export default function CheckoutPage() {
 
   const b = branchById(branch);
   const { count, total } = cartTotals(items, promos, branch);
-  const valid = name.trim().length >= 2 && phone.trim().length >= 8;
+
+  const errors = {
+    name: name.trim().length < 2 ? "Ingresá tu nombre y apellido." : "",
+    phone:
+      phone.replace(/\D/g, "").length < 8
+        ? "Ingresá un celular válido (mínimo 8 dígitos)."
+        : "",
+    email:
+      email.trim() !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ? "Ese email no parece válido."
+        : "",
+  };
+  const valid = !errors.name && !errors.phone && !errors.email;
+  const showError = (f: keyof typeof errors) =>
+    (touched[f] || submitAttempt) && errors[f] !== "";
+  const inputClass = (f: keyof typeof errors) =>
+    showError(f) ? `${INPUT_CLASS} ${INPUT_ERROR_CLASS}` : INPUT_CLASS;
+  const blur = (f: keyof typeof errors) => () =>
+    setTouched((t) => ({ ...t, [f]: true }));
 
   useEffect(() => {
     if (hydrated && items.length === 0) router.replace(`/pedir/${branch}`);
@@ -66,26 +88,53 @@ export default function CheckoutPage() {
           Tus datos
         </h2>
         <div className="mt-4 space-y-3">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre y apellido"
-            className={INPUT_CLASS}
-          />
-          <input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Celular (para el WhatsApp)"
-            inputMode="tel"
-            className={INPUT_CLASS}
-          />
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email (opcional, para el comprobante)"
-            inputMode="email"
-            className={INPUT_CLASS}
-          />
+          <div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={blur("name")}
+              placeholder="Nombre y apellido"
+              aria-invalid={showError("name")}
+              className={inputClass("name")}
+            />
+            {showError("name") ? (
+              <p className="mt-1 text-xs font-semibold text-tomato">
+                {errors.name}
+              </p>
+            ) : null}
+          </div>
+          <div>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onBlur={blur("phone")}
+              placeholder="Celular (para el WhatsApp)"
+              inputMode="tel"
+              aria-invalid={showError("phone")}
+              className={inputClass("phone")}
+            />
+            {showError("phone") ? (
+              <p className="mt-1 text-xs font-semibold text-tomato">
+                {errors.phone}
+              </p>
+            ) : null}
+          </div>
+          <div>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={blur("email")}
+              placeholder="Email (opcional, para el comprobante)"
+              inputMode="email"
+              aria-invalid={showError("email")}
+              className={inputClass("email")}
+            />
+            {showError("email") ? (
+              <p className="mt-1 text-xs font-semibold text-tomato">
+                {errors.email}
+              </p>
+            ) : null}
+          </div>
         </div>
       </section>
 
@@ -131,8 +180,11 @@ export default function CheckoutPage() {
       </section>
 
       <button
-        disabled={!valid}
         onClick={() => {
+          if (!valid) {
+            setSubmitAttempt(true);
+            return;
+          }
           track("payment_started");
           saveCheckoutDraft({
             name: name.trim(),
@@ -141,7 +193,7 @@ export default function CheckoutPage() {
           });
           router.push("/pago");
         }}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-mp py-4 text-sm font-semibold uppercase tracking-widest text-white shadow-md transition-all enabled:hover:-translate-y-0.5 enabled:hover:shadow-lg disabled:opacity-40"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-mp py-4 text-sm font-semibold uppercase tracking-widest text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
       >
         Pagar con Mercado Pago
       </button>
