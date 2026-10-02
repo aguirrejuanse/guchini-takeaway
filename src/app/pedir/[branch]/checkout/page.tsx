@@ -8,6 +8,14 @@ import { formatARS } from "@/lib/format";
 import { unitDiscount, useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/use-hydrated";
 
+const PICKUP_OPTIONS = [
+  { min: 0, label: "Lo antes posible", hint: "≈20 min" },
+  { min: 30, label: "En 30 min", hint: "" },
+  { min: 45, label: "En 45 min", hint: "" },
+  { min: 60, label: "En 1 h", hint: "" },
+  { min: 90, label: "En 1:30 h", hint: "" },
+];
+
 export default function CheckoutPage() {
   const { branch } = useParams<{ branch: string }>();
   const router = useRouter();
@@ -18,6 +26,7 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [pickupMin, setPickupMin] = useState(0);
 
   useEffect(() => {
     track("checkout_started");
@@ -83,6 +92,35 @@ export default function CheckoutPage() {
       </section>
 
       <section className="mt-4 rounded-xl bg-paper p-5 shadow-sm">
+        <h2 className="font-display text-lg uppercase tracking-wide">
+          ¿En cuánto llegás?
+        </h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {PICKUP_OPTIONS.map((o) => (
+            <button
+              key={o.min}
+              onClick={() => setPickupMin(o.min)}
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+                pickupMin === o.min
+                  ? "bg-guchi text-white shadow-md"
+                  : "bg-ink/5 text-cocoa hover:bg-ink/10"
+              }`}
+            >
+              {o.label}
+              {o.hint ? (
+                <span className="ml-1 opacity-70">{o.hint}</span>
+              ) : null}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2.5 text-xs font-medium text-cocoa">
+          {pickupMin > 0
+            ? "Pedido programado — lo preparamos para que esté listo cuando llegues."
+            : "Lo arrancamos en cuanto confirmás el pago."}
+        </p>
+      </section>
+
+      <section className="mt-4 rounded-xl bg-paper p-5 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-widest text-cocoa">
           Resumen
         </p>
@@ -101,7 +139,11 @@ export default function CheckoutPage() {
           track("payment_started");
           sessionStorage.setItem(
             "guchini-checkout",
-            JSON.stringify({ name: name.trim(), phone: phone.trim() }),
+            JSON.stringify({
+              name: name.trim(),
+              phone: phone.trim(),
+              pickupMin,
+            }),
           );
           router.push("/pago");
         }}

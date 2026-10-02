@@ -21,3 +21,9 @@ export function elapsedLabel(ts: number): string {
   if (mins === 1) return "hace 1 min";
   return `hace ${mins} min`;
 }
+
+export function inMinutesLabel(ts: number): string {
+  const mins = Math.max(0, Math.round((ts - Date.now()) / 60000));
+  if (mins < 1) return "ya";
+  return `en ${mins} min`;
+}

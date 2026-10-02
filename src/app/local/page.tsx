@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { WaBubble } from "@/components/wa-bubble";
 import { BRANCHES, branchById } from "@/lib/data";
-import { elapsedLabel, formatARS } from "@/lib/format";
+import { elapsedLabel, formatARS, formatTime, inMinutesLabel } from "@/lib/format";
 import { waLink, waReadyMessage } from "@/lib/wa";
 import {
   STATUS_LABEL,
@@ -64,6 +64,11 @@ function OrderCard({
         {branch.shortName} · {elapsedLabel(order.createdAt)} ·{" "}
         {order.customerName}
       </p>
+      {order.scheduled ? (
+        <p className="mt-1 inline-block rounded bg-sun/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">
+          Programado · retira {formatTime(order.pickupAt)}
+        </p>
+      ) : null}
 
       <div className="mt-2.5 border-t border-dashed border-ink/15 pt-2.5">
         {order.items.map((i) => (
@@ -195,9 +200,14 @@ export default function LocalPage() {
   const filtered = orders.filter(
     (o) => branchFilter === "todas" || o.branchId === branchFilter,
   );
+  const PREP_MS = 15 * 60 * 1000;
   const pending = filtered.filter(
     (o) => o.status !== "RETIRADO" && o.status !== "CANCELADO",
   );
+  const scheduled = pending.filter(
+    (o) => o.scheduled && o.pickupAt - Date.now() > PREP_MS,
+  );
+  const active = pending.filter((o) => !scheduled.includes(o));
   const done = filtered.filter(
     (o) => o.status === "RETIRADO" || o.status === "CANCELADO",
   );
@@ -241,11 +251,32 @@ export default function LocalPage() {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {pending.map((o) => (
+          {active.map((o) => (
             <OrderCard key={o.id} order={o} onCancel={setCancelling} />
           ))}
         </div>
       )}
+
+      {scheduled.length > 0 ? (
+        <>
+          <h2 className="mt-10 font-display text-lg uppercase tracking-wider text-cocoa">
+            Programados
+          </h2>
+          <p className="mt-1 text-xs font-medium text-cocoa">
+            Entran a la cola 15 min antes del retiro.
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-4 opacity-75 sm:grid-cols-2 lg:grid-cols-3">
+            {scheduled.map((o) => (
+              <div key={o.id} className="relative">
+                <OrderCard order={o} onCancel={setCancelling} />
+                <span className="absolute right-3 top-12 rounded-full bg-ink/80 px-2 py-0.5 text-[10px] font-bold text-white">
+                  {inMinutesLabel(o.pickupAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : null}
 
       {done.length > 0 ? (
         <>

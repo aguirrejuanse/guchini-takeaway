@@ -37,10 +37,10 @@ export default function PagoPage() {
     setPhase("processing");
     setTimeout(() => {
       const saved = sessionStorage.getItem("guchini-checkout");
-      const { name, phone } = saved
+      const { name, phone, pickupMin } = saved
         ? JSON.parse(saved)
-        : { name: "Cliente", phone: "" };
-      const order = confirmOrder(name, phone);
+        : { name: "Cliente", phone: "", pickupMin: 0 };
+      const order = confirmOrder(name, phone, pickupMin ?? 0);
       if (order) router.replace(`/confirmacion/${order.id}`);
       else router.replace("/pedir");
     }, 1400);

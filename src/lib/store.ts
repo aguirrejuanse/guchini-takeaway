@@ -51,6 +51,7 @@ export interface Order {
   promoId: string | null;
   createdAt: number;
   pickupAt: number;
+  scheduled: boolean;
 }
 
 export interface Promotion {
@@ -224,7 +225,7 @@ interface DemoStore {
   setBranch: (branchId: string) => void;
   setQty: (productId: string, qty: number) => void;
   clearCart: () => void;
-  confirmOrder: (name: string, phone: string) => Order | null;
+  confirmOrder: (name: string, phone: string, pickupMin?: number) => Order | null;
   advanceOrder: (orderId: string) => void;
   cancelOrder: (orderId: string) => void;
   setStock: (branchId: string, productId: string, qty: number) => void;
@@ -268,7 +269,7 @@ export const useStore = create<DemoStore>()(
 
       clearCart: () => set((s) => ({ cart: { ...s.cart, items: [] } })),
 
-      confirmOrder: (name, phone) => {
+      confirmOrder: (name, phone, pickupMin = 0) => {
         const s = get();
         const branchId = s.cart.branchId;
         if (!branchId || s.cart.items.length === 0) return null;
@@ -306,7 +307,8 @@ export const useStore = create<DemoStore>()(
           status: "PAGADO",
           promoId: promoIds[0] ?? null,
           createdAt: Date.now(),
-          pickupAt: Date.now() + 20 * 60 * 1000,
+          pickupAt: Date.now() + Math.max(pickupMin, 20) * 60 * 1000,
+          scheduled: pickupMin > 0,
         };
 
         set((prev) => {

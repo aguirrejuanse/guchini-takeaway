@@ -45,7 +45,10 @@ export default function ConfirmacionPage() {
         </div>
         <div className="mt-1.5 flex justify-between text-sm font-medium">
           <span className="text-cocoa">Retiro</span>
-          <span>Hoy · {formatTime(order.pickupAt)}</span>
+          <span>
+            {order.scheduled ? "Programado · " : "Hoy · ~"}
+            {formatTime(order.pickupAt)}
+          </span>
         </div>
         <div className="mt-3 border-t border-dashed border-ink/15 pt-3">
           {order.items.map((i) => (

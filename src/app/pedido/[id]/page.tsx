@@ -32,7 +32,9 @@ export default function PedidoPage() {
         Pedido #{order.number}
       </h1>
       <p className="mt-1 text-sm font-medium text-cocoa">
-        {branch.name} · Retiro estimado {formatTime(order.pickupAt)}
+        {branch.name} ·{" "}
+        {order.scheduled ? "Retiro programado" : "Retiro estimado"}{" "}
+        {formatTime(order.pickupAt)}
       </p>
 
       {order.status === "CANCELADO" ? (
