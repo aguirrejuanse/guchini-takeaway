@@ -18,21 +18,21 @@ export function DemoBar() {
 
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-coal px-3 py-2 text-white">
-      <div className="flex items-center gap-2.5">
+      <div className="flex shrink-0 items-center gap-2.5">
         <Link href="/" className="transition-opacity hover:opacity-80">
           <Image
             src="/assets/logo.png"
             alt="Guchini"
             width={560}
             height={210}
-            className="h-10 w-auto"
+            className="h-8 w-auto sm:h-10"
           />
         </Link>
         <span className="rounded bg-sun px-1.5 py-px text-[9px] font-bold uppercase tracking-widest text-ink">
           Demo
         </span>
       </div>
-      <nav className="flex items-center gap-1">
+      <nav className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
         {VIEWS.map((v) => {
           const active =
             v.href === "/"
