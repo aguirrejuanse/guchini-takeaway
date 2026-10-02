@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { PRODUCTS, productById } from "./data";
 import { cartTotals, promoFor, unitDiscount } from "./cart";
+import { buildSeed } from "./seed";
 
 export type OrderStatus =
   | "PAGADO"
@@ -209,6 +210,7 @@ interface DemoStore {
   toggleProduct: (productId: string) => void;
   togglePromo: (promoId: string) => void;
   resetDemo: () => void;
+  seedDemo: () => void;
 }
 
 export const useStore = create<DemoStore>()(
@@ -394,6 +396,8 @@ export const useStore = create<DemoStore>()(
           events: [],
           orderCounter: 10480,
         }),
+
+      seedDemo: () => set(buildSeed(initialStock(), initialPromos())),
     }),
     {
       name: STORE_KEY,

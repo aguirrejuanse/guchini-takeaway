@@ -31,7 +31,7 @@ export const Cierre: React.FC = () => {
             {BRANCHES.map((b, i) => (
               <Pop key={b.id} delay={T.pricing + 4 + i * 4} y={14}>
                 <Pill bg={C.pine} size={20}>
-                  {b.name}
+                  {b.shortName}
                 </Pill>
               </Pop>
             ))}

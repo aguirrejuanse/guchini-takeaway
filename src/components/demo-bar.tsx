@@ -15,6 +15,7 @@ export function DemoBar() {
   const pathname = usePathname();
   const router = useRouter();
   const resetDemo = useStore((s) => s.resetDemo);
+  const seedDemo = useStore((s) => s.seedDemo);
 
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-coal px-3 py-2 text-white">
@@ -52,10 +53,19 @@ export function DemoBar() {
         })}
         <button
           onClick={() => {
+            seedDemo();
+            router.push("/local");
+          }}
+          className="ml-1 rounded-md border border-guchi/60 px-2.5 py-0.5 text-[11px] font-semibold text-sun hover:bg-guchi/20"
+        >
+          Cargar demo
+        </button>
+        <button
+          onClick={() => {
             resetDemo();
             router.push("/");
           }}
-          className="ml-1 rounded-md border border-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white/60 hover:text-white"
+          className="rounded-md border border-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white/60 hover:text-white"
         >
           Reiniciar
         </button>

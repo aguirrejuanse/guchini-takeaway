@@ -20,6 +20,48 @@ const Scaled: React.FC<{ w: number; h: number; scale: number; children: React.Re
 );
 
 export const PHONE_SCREEN = { w: 390, h: 844 };
+/** Height of the mobile-browser chrome (status bar + address bar) when a Phone has a `url`. */
+export const PHONE_CHROME = 100;
+/** Usable page area when the Phone shows a URL: what screen components lay out in. */
+export const PHONE_VIEW = { w: PHONE_SCREEN.w, h: PHONE_SCREEN.h - PHONE_CHROME };
+
+const AddressBar: React.FC<{ url: string }> = ({ url }) => {
+  const i = url.indexOf("/");
+  const host = i < 0 ? url : url.slice(0, i);
+  const path = i < 0 ? "" : url.slice(i);
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: PHONE_CHROME, background: "#f4f3f1", borderBottom: "1px solid #d9d6d0", zIndex: 30 }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 14,
+          right: 14,
+          top: 52,
+          height: 38,
+          borderRadius: 12,
+          background: "#e6e3de",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 7,
+          fontSize: 15,
+          fontWeight: 500,
+          fontFamily: FONTS.sans,
+          color: "#8a857c",
+        }}
+      >
+        <svg width="12" height="14" viewBox="0 0 12 14" fill="none" style={{ flexShrink: 0 }}>
+          <rect x="1" y="6" width="10" height="7" rx="1.6" fill="#6f6a62" />
+          <path d="M3.2 6V4.2a2.8 2.8 0 0 1 5.6 0V6" stroke="#6f6a62" strokeWidth="1.6" />
+        </svg>
+        <span style={{ whiteSpace: "nowrap" }}>
+          <span style={{ color: "#2b2823" }}>{host}</span>
+          {path}
+        </span>
+      </div>
+    </div>
+  );
+};
 const PHONE_BEZEL = 14;
 
 const StatusBar: React.FC<{ time: string; dark?: boolean }> = ({ time, dark }) => {
@@ -61,9 +103,11 @@ export const Phone: React.FC<{
   time?: string;
   darkStatus?: boolean;
   screenBg?: string;
+  /** Shows a mobile-browser address bar and shrinks the usable page area to PHONE_VIEW. */
+  url?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
-}> = ({ scale = 1, time = "20:07", darkStatus, screenBg = C.cream, style, children }) => {
+}> = ({ scale = 1, time = "20:07", darkStatus, screenBg = C.cream, url, style, children }) => {
   const w = PHONE_SCREEN.w + PHONE_BEZEL * 2;
   const h = PHONE_SCREEN.h + PHONE_BEZEL * 2;
   return (
@@ -91,8 +135,15 @@ export const Phone: React.FC<{
             color: C.ink,
           }}
         >
-          {children}
-          <StatusBar time={time} dark={darkStatus} />
+          {url ? (
+            <>
+              <div style={{ position: "absolute", left: 0, right: 0, top: PHONE_CHROME, bottom: 0, overflow: "hidden" }}>{children}</div>
+              <AddressBar url={url} />
+            </>
+          ) : (
+            children
+          )}
+          <StatusBar time={time} dark={url ? false : darkStatus} />
           {/* notch */}
           <div
             style={{

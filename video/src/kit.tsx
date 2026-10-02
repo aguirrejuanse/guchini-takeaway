@@ -61,9 +61,10 @@ export const Pop: React.FC<{
 };
 
 /** A screen that slides in at `from` and fades out at `to` (both scene-relative). */
-export const ScreenAt: React.FC<{ from: number; to?: number; children: React.ReactNode }> = ({
+export const ScreenAt: React.FC<{ from: number; to?: number; slide?: boolean; children: React.ReactNode }> = ({
   from,
   to,
+  slide = true,
   children,
 }) => {
   const frame = useCurrentFrame();
@@ -74,7 +75,7 @@ export const ScreenAt: React.FC<{ from: number; to?: number; children: React.Rea
     <AbsoluteFill
       style={{
         opacity: (from === 0 ? 1 : enter) * (1 - leave),
-        transform: `translateX(${from === 0 ? 0 : (1 - enter) * 60}px) translateX(${-leave * 40}px)`,
+        transform: slide ? `translateX(${from === 0 ? 0 : (1 - enter) * 60}px) translateX(${-leave * 40}px)` : undefined,
       }}
     >
       {children}

@@ -24,12 +24,13 @@ export const TOTAL =
 
 export const CUES = {
   hook: {
-    line1: s(0.2),
-    line2: s(1.2),
-    out: s(3.6),
-    logo: s(4),
-    script: s(4.9),
-    mascot: s(5.2),
+    logo: s(0.2),
+    online: s(0.9),
+    headline: s(1.7),
+    features: s(3.3),
+    featureStep: s(0.3),
+    script: s(5.5),
+    mascot: s(5.8),
   },
   cliente: {
     home: 0,
