@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { PRODUCTS, productById } from "./data";
+import { cartTotals, promoFor, unitDiscount } from "./cart";
 
 export type OrderStatus =
   | "PAGADO"
@@ -185,31 +186,7 @@ function initialPromos(): Promotion[] {
   ];
 }
 
-export function promoFor(
-  promos: Promotion[],
-  productId: string,
-  branchId: string,
-): Promotion | null {
-  return (
-    promos.find(
-      (p) =>
-        p.active && p.productId === productId && p.branchIds.includes(branchId),
-    ) ?? null
-  );
-}
-
-export function unitDiscount(
-  promos: Promotion[],
-  productId: string,
-  branchId: string,
-): number {
-  const promo = promoFor(promos, productId, branchId);
-  if (!promo) return 0;
-  const price = productById(productId).price;
-  return promo.percentOff > 0
-    ? Math.round((price * promo.percentOff) / 100)
-    : promo.fixedOff;
-}
+export const STORE_KEY = "guchini-demo-v2";
 
 interface DemoStore {
   cart: { branchId: string | null; items: CartItem[] };
@@ -284,8 +261,11 @@ export const useStore = create<DemoStore>()(
             unitDiscount: unitDiscount(s.promos, ci.productId, branchId),
           };
         });
-        const subtotal = items.reduce((a, i) => a + i.unitPrice * i.qty, 0);
-        const discount = items.reduce((a, i) => a + i.unitDiscount * i.qty, 0);
+        const { subtotal, discount } = cartTotals(
+          s.cart.items,
+          s.promos,
+          branchId,
+        );
         const promoIds = [
           ...new Set(
             items
@@ -416,7 +396,7 @@ export const useStore = create<DemoStore>()(
         }),
     }),
     {
-      name: "guchini-demo-v2",
+      name: STORE_KEY,
       storage: createJSONStorage(() => localStorage),
     },
   ),

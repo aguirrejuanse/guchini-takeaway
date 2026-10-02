@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { QtyStepper } from "@/components/qty-stepper";
 import { branchById, productById } from "@/lib/data";
+import { cartTotals, unitDiscount } from "@/lib/cart";
 import { formatARS } from "@/lib/format";
-import { unitDiscount, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/use-hydrated";
 
 export default function CarritoPage() {
@@ -29,14 +31,7 @@ export default function CarritoPage() {
   }, [hydrated, cartBranch, branch, items.length, router]);
 
   const b = branchById(branch);
-  const subtotal = items.reduce(
-    (a, i) => a + productById(i.productId).price * i.qty,
-    0,
-  );
-  const discount = items.reduce(
-    (a, i) => a + unitDiscount(promos, i.productId, branch) * i.qty,
-    0,
-  );
+  const { subtotal, discount } = cartTotals(items, promos, branch);
 
   if (!hydrated || items.length === 0) {
     return <main className="mx-auto max-w-2xl px-4 pb-16" />;
@@ -76,23 +71,10 @@ export default function CarritoPage() {
                   ) : null}
                 </p>
               </div>
-              <div className="flex items-center gap-1 rounded-full border border-ink/15 bg-white px-1 py-0.5 shadow-sm">
-                <button
-                  onClick={() => setQty(i.productId, i.qty - 1)}
-                  className="h-7 w-7 rounded-full font-bold hover:bg-cream"
-                >
-                  −
-                </button>
-                <span className="w-5 text-center text-sm font-bold">
-                  {i.qty}
-                </span>
-                <button
-                  onClick={() => setQty(i.productId, i.qty + 1)}
-                  className="h-7 w-7 rounded-full font-bold hover:bg-cream"
-                >
-                  +
-                </button>
-              </div>
+              <QtyStepper
+                qty={i.qty}
+                onChange={(q) => setQty(i.productId, q)}
+              />
             </div>
           );
         })}

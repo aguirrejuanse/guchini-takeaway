@@ -32,6 +32,12 @@ export default function MenuPage() {
   const extras = PRODUCTS.filter((p) => p.category === "extra");
   const bebidas = PRODUCTS.filter((p) => p.category === "bebida");
 
+  const sections = [
+    { title: "Sanguchinis", items: sanguches, grid: false },
+    { title: "Combos y extras", items: [...combos, ...extras], grid: true },
+    { title: "Bebidas", items: bebidas, grid: true },
+  ];
+
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28">
       <header className="mt-8">
@@ -46,36 +52,22 @@ export default function MenuPage() {
         </p>
       </header>
 
-      <section className="mt-8 space-y-4">
-        <h2 className="font-display text-xl uppercase tracking-wider">
-          Sanguchinis
-        </h2>
-        {sanguches.map((p, i) => (
-          <ProductCard key={p.id} product={p} branchId={branch} index={i} />
-        ))}
-      </section>
-
-      <section className="mt-10 space-y-4">
-        <h2 className="font-display text-xl uppercase tracking-wider">
-          Combos y extras
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {[...combos, ...extras].map((p, i) => (
-            <ProductCard key={p.id} product={p} branchId={branch} index={i} />
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-10 space-y-4">
-        <h2 className="font-display text-xl uppercase tracking-wider">
-          Bebidas
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {bebidas.map((p, i) => (
-            <ProductCard key={p.id} product={p} branchId={branch} index={i} />
-          ))}
-        </div>
-      </section>
+      {sections.map((section) => (
+        <section key={section.title} className="mt-8 space-y-4">
+          <h2 className="font-display text-xl uppercase tracking-wider">
+            {section.title}
+          </h2>
+          <div
+            className={
+              section.grid ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : "space-y-4"
+            }
+          >
+            {section.items.map((p, i) => (
+              <ProductCard key={p.id} product={p} branchId={branch} index={i} />
+            ))}
+          </div>
+        </section>
+      ))}
 
       <CartBar branchId={branch} />
     </main>

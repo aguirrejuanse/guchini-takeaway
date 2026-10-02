@@ -1,17 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { SectionTitle } from "@/components/section-title";
 import { BRANCHES } from "@/lib/data";
 
 export default function PedirPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 pb-16">
-      <div className="mt-10 text-center">
-        <h1 className="font-display text-3xl uppercase tracking-widest">
-          ¿Por dónde retirás?
-        </h1>
-        <div className="mx-auto mt-3 h-[3px] w-14 rounded-full bg-tomato" />
-        <p className="mx-auto mt-3 max-w-md text-sm text-cocoa">
+      <div className="mt-10">
+        <SectionTitle centered>¿Por dónde retirás?</SectionTitle>
+        <p className="mx-auto mt-3 max-w-md text-center text-sm text-cocoa">
           Elegí la sucursal — el menú y el stock dependen de cada local.
         </p>
       </div>

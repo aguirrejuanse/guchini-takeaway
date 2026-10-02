@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { productById } from "@/lib/data";
+import { cartTotals } from "@/lib/cart";
+import { loadCheckoutDraft } from "@/lib/checkout";
 import { formatARS } from "@/lib/format";
-import { unitDiscount, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/use-hydrated";
 
 export default function PagoPage() {
@@ -17,15 +18,7 @@ export default function PagoPage() {
   const track = useStore((s) => s.track);
   const [phase, setPhase] = useState<"idle" | "processing" | "failed">("idle");
 
-  const subtotal = items.reduce(
-    (a, i) => a + productById(i.productId).price * i.qty,
-    0,
-  );
-  const discount = items.reduce(
-    (a, i) => a + unitDiscount(promos, i.productId, branchId ?? "") * i.qty,
-    0,
-  );
-  const total = subtotal - discount;
+  const { total } = cartTotals(items, promos, branchId ?? "");
 
   useEffect(() => {
     if (hydrated && items.length === 0 && phase === "idle") {
@@ -36,11 +29,8 @@ export default function PagoPage() {
   const pay = () => {
     setPhase("processing");
     setTimeout(() => {
-      const saved = sessionStorage.getItem("guchini-checkout");
-      const { name, phone, pickupMin } = saved
-        ? JSON.parse(saved)
-        : { name: "Cliente", phone: "", pickupMin: 0 };
-      const order = confirmOrder(name, phone, pickupMin ?? 0);
+      const { name, phone, pickupMin } = loadCheckoutDraft();
+      const order = confirmOrder(name, phone, pickupMin);
       if (order) router.replace(`/confirmacion/${order.id}`);
       else router.replace("/pedir");
     }, 1400);

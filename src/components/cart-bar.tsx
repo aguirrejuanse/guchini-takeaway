@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { formatARS } from "@/lib/format";
-import { productById } from "@/lib/data";
-import { unitDiscount, useStore } from "@/lib/store";
+import { cartTotals } from "@/lib/cart";
+import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/use-hydrated";
 
 export function CartBar({ branchId }: { branchId: string }) {
@@ -14,15 +14,7 @@ export function CartBar({ branchId }: { branchId: string }) {
 
   if (!hydrated || cartBranch !== branchId || items.length === 0) return null;
 
-  const count = items.reduce((a, i) => a + i.qty, 0);
-  const total = items.reduce(
-    (a, i) =>
-      a +
-      (productById(i.productId).price -
-        unitDiscount(promos, i.productId, branchId)) *
-        i.qty,
-    0,
-  );
+  const { count, total } = cartTotals(items, promos, branchId);
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 p-4">

@@ -11,6 +11,7 @@ const T = CUES.momento;
 const FLOW: Status[] = ["PAGADO", "CONFIRMADO", "EN PREPARACIÓN", "LISTO"];
 const STEP_AT = [T.orderIn, T.confirmed, T.preparing, T.ready];
 const CARD_H = 168;
+const CLOCK = ["20:07", "20:08", "20:12", "20:29"];
 
 const Kpi: React.FC<{ label: string; value: string; bump?: number }> = ({ label, value, bump = 0 }) => (
   <div style={{ background: C.paper, borderRadius: 18, padding: "16px 18px", marginBottom: 14 }}>
@@ -72,7 +73,7 @@ const LivePanel: React.FC = () => {
 
   return (
     <>
-      <PanelHeader branch="Ciudad" address={ORDER.address} clock="20:07" />
+      <PanelHeader branch="Ciudad" address={ORDER.address} clock={CLOCK[Math.max(step, 0)]} />
       <div style={{ display: "flex", gap: 26, padding: "26px 28px" }}>
         <div style={{ flex: 1, position: "relative" }}>
           <ColumnTitle count={isIn ? 3 : 2}>Cola activa</ColumnTitle>
@@ -146,7 +147,7 @@ const WhatsAppBubble: React.FC = () => {
       style={{
         width: 420,
         transform: `scale(${s}) translateY(${(1 - s) * 30}px)`,
-        transformOrigin: "bottom left",
+        transformOrigin: "top right",
         opacity: Math.min(s, 1),
         background: C.paper,
         borderRadius: 26,
@@ -185,7 +186,7 @@ const WhatsAppBubble: React.FC = () => {
           <b>¡Tu pedido está listo!</b> 🙌
           <br />
           {ORDER.id} · Retiralo en {ORDER.address}.
-          <div style={{ textAlign: "right", fontSize: 14, color: C.cocoa, marginTop: 4 }}>20:31 ✓✓</div>
+          <div style={{ textAlign: "right", fontSize: 14, color: C.cocoa, marginTop: 4 }}>20:29 ✓✓</div>
         </div>
       </div>
     </div>
@@ -217,15 +218,15 @@ export const Momento: React.FC = () => {
           }}
         >
           <div style={{ position: "relative", zIndex: 3 }}>
-            <Phone scale={portrait ? 0.78 : 0.8} time="20:07">
+            <Phone scale={portrait ? 0.78 : 0.92} time={CLOCK[step]}>
               <ConfirmedScreen step={step} />
             </Phone>
-            <div style={{ position: "absolute", left: portrait ? 220 : 210, top: portrait ? 40 : 60, zIndex: 5 }}>
+            <div style={{ position: "absolute", left: portrait ? 160 : -190, top: portrait ? 420 : 560, zIndex: 5 }}>
               {frame >= T.waBubble - 2 && <WhatsAppBubble />}
             </div>
           </div>
           <div style={{ transform: `translateX(${(1 - tabletIn) * 160}px)`, opacity: tabletIn }}>
-            <Tablet scale={portrait ? 0.74 : 0.68}>
+            <Tablet scale={portrait ? 0.74 : 0.8}>
               <LivePanel />
             </Tablet>
           </div>

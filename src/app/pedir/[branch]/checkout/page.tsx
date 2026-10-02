@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { branchById, productById } from "@/lib/data";
+import { branchById } from "@/lib/data";
+import { cartTotals } from "@/lib/cart";
+import { saveCheckoutDraft } from "@/lib/checkout";
 import { formatARS } from "@/lib/format";
-import { unitDiscount, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { useHydrated } from "@/lib/use-hydrated";
+
+const INPUT_CLASS =
+  "w-full rounded-lg border border-ink/15 bg-white px-3.5 py-3 text-sm font-medium outline-none transition-shadow placeholder:text-cocoa/60 focus:border-sun focus:ring-2 focus:ring-sun/30";
 
 const PICKUP_OPTIONS = [
   { min: 0, label: "Lo antes posible", hint: "≈20 min" },
@@ -33,14 +38,7 @@ export default function CheckoutPage() {
   }, [track]);
 
   const b = branchById(branch);
-  const subtotal = items.reduce(
-    (a, i) => a + productById(i.productId).price * i.qty,
-    0,
-  );
-  const discount = items.reduce(
-    (a, i) => a + unitDiscount(promos, i.productId, branch) * i.qty,
-    0,
-  );
+  const { count, total } = cartTotals(items, promos, branch);
   const valid = name.trim().length >= 2 && phone.trim().length >= 8;
 
   useEffect(() => {
@@ -72,21 +70,21 @@ export default function CheckoutPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre y apellido"
-            className="w-full rounded-lg border border-ink/15 bg-white px-3.5 py-3 text-sm font-medium outline-none transition-shadow placeholder:text-cocoa/60 focus:border-sun focus:ring-2 focus:ring-sun/30"
+            className={INPUT_CLASS}
           />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Celular (para el WhatsApp)"
             inputMode="tel"
-            className="w-full rounded-lg border border-ink/15 bg-white px-3.5 py-3 text-sm font-medium outline-none transition-shadow placeholder:text-cocoa/60 focus:border-sun focus:ring-2 focus:ring-sun/30"
+            className={INPUT_CLASS}
           />
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email (opcional, para el comprobante)"
             inputMode="email"
-            className="w-full rounded-lg border border-ink/15 bg-white px-3.5 py-3 text-sm font-medium outline-none transition-shadow placeholder:text-cocoa/60 focus:border-sun focus:ring-2 focus:ring-sun/30"
+            className={INPUT_CLASS}
           />
         </div>
       </section>
@@ -125,11 +123,10 @@ export default function CheckoutPage() {
           Resumen
         </p>
         <p className="mt-1 text-sm font-medium">
-          {items.reduce((a, i) => a + i.qty, 0)} productos · Retiro en{" "}
-          {b.shortName}
+          {count} productos · Retiro en {b.shortName}
         </p>
         <p className="mt-1 font-display text-2xl tracking-wide text-mango">
-          {formatARS(subtotal - discount)}
+          {formatARS(total)}
         </p>
       </section>
 
@@ -137,14 +134,11 @@ export default function CheckoutPage() {
         disabled={!valid}
         onClick={() => {
           track("payment_started");
-          sessionStorage.setItem(
-            "guchini-checkout",
-            JSON.stringify({
-              name: name.trim(),
-              phone: phone.trim(),
-              pickupMin,
-            }),
-          );
+          saveCheckoutDraft({
+            name: name.trim(),
+            phone: phone.trim(),
+            pickupMin,
+          });
           router.push("/pago");
         }}
         className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-mp py-4 text-sm font-semibold uppercase tracking-widest text-white shadow-md transition-all enabled:hover:-translate-y-0.5 enabled:hover:shadow-lg disabled:opacity-40"

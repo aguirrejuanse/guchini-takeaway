@@ -99,9 +99,11 @@ export const Tap: React.FC<{ at: number; x: number; y: number }> = ({ at, x, y }
           left: -32,
           top: -32,
           borderRadius: "50%",
-          background: "rgba(44,24,16,0.22)",
+          background: "rgba(44,24,16,0.35)",
+          border: "3px solid rgba(255,255,255,0.9)",
+          boxShadow: "0 4px 14px rgba(44,24,16,0.3)",
           transform: `scale(${press})`,
-          opacity: 1 - ring,
+          opacity: 1 - ring * 0.8,
         }}
       />
       <div
@@ -112,9 +114,9 @@ export const Tap: React.FC<{ at: number; x: number; y: number }> = ({ at, x, y }
           left: -32,
           top: -32,
           borderRadius: "50%",
-          border: `3px solid ${C.ink}`,
-          transform: `scale(${0.6 + ring * 1.4})`,
-          opacity: t >= 0 ? (1 - ring) * 0.5 : 0,
+          border: `4px solid ${C.ink}`,
+          transform: `scale(${0.6 + ring * 1.5})`,
+          opacity: t >= 0 ? (1 - ring) * 0.7 : 0,
         }}
       />
     </div>

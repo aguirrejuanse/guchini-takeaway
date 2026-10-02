@@ -9,14 +9,18 @@ const AppHeader: React.FC<{ branch?: string }> = ({ branch }) => (
   <div
     style={{
       position: "absolute",
-      top: 50,
+      top: 0,
       left: 0,
       right: 0,
-      height: 58,
+      height: 108,
+      paddingTop: 50,
+      background: C.cream,
+      boxShadow: "0 6px 14px -10px rgba(44,24,16,0.35)",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "0 18px",
+      paddingLeft: 18,
+      paddingRight: 18,
       zIndex: 5,
     }}
   >
@@ -151,7 +155,7 @@ export const HomeScreen: React.FC<{ scroll?: number; soldOut?: number; highlight
 );
 
 /** Guchicken tile center once the home has scrolled by `MENU_SCROLL`. */
-export const MENU_SCROLL = 150;
+export const MENU_SCROLL = 130;
 export const GUCHICKEN_TAP = { x: 101, y: 112 - MENU_SCROLL + 268 + 90 };
 
 const SHEET_TOP = 330;
@@ -387,6 +391,24 @@ export const CheckoutScreen: React.FC<{ typeName: number; typePhone: number; pic
             </div>
           );
         })}
+      </div>
+      <div
+        style={{
+          marginTop: 18,
+          background: "#eaf4ec",
+          border: `2px dashed ${C.pine}`,
+          borderRadius: 16,
+          padding: "12px 16px",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 26 }}>🕒</span>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>Te esperamos a las {eta ? "20:37" : "20:22"}</div>
+          <div style={{ fontSize: 12, color: C.cocoa }}>Guchini Ciudad · {ORDER.address}</div>
+        </div>
       </div>
       <div
         style={{

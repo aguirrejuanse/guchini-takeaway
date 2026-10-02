@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import type { Product } from "@/lib/data";
+import { promoFor, unitDiscount } from "@/lib/cart";
 import { formatARS } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
-import { promoFor, useStore } from "@/lib/store";
+import { QtyStepper } from "@/components/qty-stepper";
+import { useStore } from "@/lib/store";
 
 export function ProductCard({
   product,
@@ -25,11 +27,7 @@ export function ProductCard({
   const setQty = useStore((s) => s.setQty);
 
   const promo = promoFor(promos, product.id, branchId);
-  const discount = promo
-    ? promo.percentOff > 0
-      ? Math.round((product.price * promo.percentOff) / 100)
-      : promo.fixedOff
-    : 0;
+  const discount = unitDiscount(promos, product.id, branchId);
   const soldOut = hydrated && stock <= 0;
   const disabled = soldOut || !active;
 
@@ -124,22 +122,11 @@ export function ProductCard({
               Agregar
             </button>
           ) : (
-            <div className="flex items-center gap-1 rounded-full border border-ink/15 bg-white px-1 py-0.5 shadow-sm">
-              <button
-                onClick={() => setQty(product.id, qty - 1)}
-                className="h-7 w-7 rounded-full font-bold transition-colors hover:bg-cream"
-              >
-                −
-              </button>
-              <span className="w-5 text-center text-sm font-bold">{qty}</span>
-              <button
-                onClick={() => setQty(product.id, qty + 1)}
-                disabled={qty >= stock}
-                className="h-7 w-7 rounded-full font-bold transition-colors hover:bg-cream disabled:opacity-30"
-              >
-                +
-              </button>
-            </div>
+            <QtyStepper
+              qty={qty}
+              max={stock}
+              onChange={(q) => setQty(product.id, q)}
+            />
           )}
         </div>
       </div>

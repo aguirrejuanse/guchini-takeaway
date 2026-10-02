@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionTitle } from "@/components/section-title";
 import { BRANCHES, PRODUCTS } from "@/lib/data";
 import { formatARS } from "@/lib/format";
 import { useStore } from "@/lib/store";
@@ -11,17 +12,6 @@ const FUNNEL_STEPS = [
   { event: "payment_approved", label: "Pagos aprobados" },
   { event: "order_ready", label: "Pedidos listos" },
 ];
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <div>
-      <h2 className="font-display text-xl uppercase tracking-wider">
-        {children}
-      </h2>
-      <div className="mt-2 h-[3px] w-10 rounded-full bg-tomato" />
-    </div>
-  );
-}
 
 export default function AdminPage() {
   const hydrated = useHydrated();

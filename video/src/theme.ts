@@ -65,4 +65,5 @@ export const ORDER = {
   address: "San Lorenzo 577",
 } as const;
 
-export const ars = (n: number) => `$${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+export const ars = (n: number) => "$" + num(n);
+export const num = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");

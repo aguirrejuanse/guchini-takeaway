@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { SectionTitle } from "@/components/section-title";
 import { BRANCHES, PRODUCTS, branchById } from "@/lib/data";
 import { formatARS } from "@/lib/format";
 import { useStore } from "@/lib/store";
@@ -84,12 +85,9 @@ export default function Home() {
       ) : null}
 
       <section className="mx-auto max-w-3xl px-4 py-14">
-        <div className="text-center">
-          <h2 className="font-display text-3xl uppercase tracking-widest">
-            Sanguchinis
-          </h2>
-          <div className="mx-auto mt-3 h-[3px] w-14 rounded-full bg-tomato" />
-          <p className="mx-auto mt-3 max-w-md text-sm text-cocoa">
+        <div>
+          <SectionTitle centered>Sanguchinis</SectionTitle>
+          <p className="mx-auto mt-3 max-w-md text-center text-sm text-cocoa">
             Cada sanguche es una obra maestra culinaria.
           </p>
         </div>
@@ -134,12 +132,9 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-4xl px-4 pb-14">
-        <div className="text-center">
-          <h2 className="font-display text-3xl uppercase tracking-widest">
-            Locales
-          </h2>
-          <div className="mx-auto mt-3 h-[3px] w-14 rounded-full bg-tomato" />
-          <p className="mx-auto mt-3 max-w-md text-sm text-cocoa">
+        <div>
+          <SectionTitle centered>Locales</SectionTitle>
+          <p className="mx-auto mt-3 max-w-md text-center text-sm text-cocoa">
             Elegí el que te quede más cerca y retirá sin fila.
           </p>
         </div>
