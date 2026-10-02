@@ -61,12 +61,15 @@ function OrderCard({
         </span>
       </div>
       <p className="mt-0.5 text-xs font-medium text-cocoa">
-        {branch.shortName} · {elapsedLabel(order.createdAt)} ·{" "}
-        {order.customerName}
+        {branch.shortName}
+      </p>
+      <p className="text-xs font-medium text-cocoa">
+        {elapsedLabel(order.createdAt)} · {order.customerName}
       </p>
       {order.scheduled ? (
         <p className="mt-1 inline-block rounded bg-sun/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">
-          Programado · retira {formatTime(order.pickupAt)}
+          Programado · retira {formatTime(order.pickupAt)} ·{" "}
+          {inMinutesLabel(order.pickupAt)}
         </p>
       ) : null}
 
@@ -267,12 +270,7 @@ export default function LocalPage() {
           </p>
           <div className="mt-3 grid grid-cols-1 gap-4 opacity-75 sm:grid-cols-2 lg:grid-cols-3">
             {scheduled.map((o) => (
-              <div key={o.id} className="relative">
-                <OrderCard order={o} onCancel={setCancelling} />
-                <span className="absolute right-3 top-12 rounded-full bg-ink/80 px-2 py-0.5 text-[10px] font-bold text-white">
-                  {inMinutesLabel(o.pickupAt)}
-                </span>
-              </div>
+              <OrderCard key={o.id} order={o} onCancel={setCancelling} />
             ))}
           </div>
         </>
