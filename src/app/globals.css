@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), sans-serif;
+  --font-script: var(--font-caveat), cursive;
+
+  --color-cream: #f2ebdd;
+  --color-paper: #ffffff;
+  --color-sun: #ffbf33;
+  --color-mango: #f0a500;
+  --color-guchi: #138613;
+  --color-pine: #1b7334;
+  --color-tomato: #ff194d;
+  --color-pinki: #ff8ccc;
+  --color-ink: #2c1810;
+  --color-cocoa: #6b5b47;
+  --color-coal: #1a1a1a;
+  --color-mp: #009ee3;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-sun);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.55s ease-out both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
