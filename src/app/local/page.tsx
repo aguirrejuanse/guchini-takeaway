@@ -226,12 +226,12 @@ export default function LocalPage() {
             Solo entran pedidos pagados y confirmados.
           </p>
         </div>
-        <div className="flex gap-1 rounded-full bg-white p-1 shadow-sm">
+        <div className="flex max-w-full gap-1 overflow-x-auto whitespace-nowrap rounded-full bg-white p-1 shadow-sm">
           {["todas", ...BRANCHES.map((b) => b.id)].map((f) => (
             <button
               key={f}
               onClick={() => setBranchFilter(f)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
                 branchFilter === f
                   ? "bg-coal text-white"
                   : "text-cocoa hover:text-ink"
