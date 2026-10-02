@@ -8,8 +8,11 @@ import { useHydrated } from "@/lib/use-hydrated";
 
 const FUNNEL_STEPS = [
   { event: "menu_viewed", label: "Vieron el menú" },
+  { event: "cart_viewed", label: "Abrieron el carrito" },
   { event: "checkout_started", label: "Iniciaron checkout" },
+  { event: "payment_started", label: "Iniciaron el pago" },
   { event: "payment_approved", label: "Pagos aprobados" },
+  { event: "order_confirmed", label: "Pedidos confirmados" },
   { event: "order_ready", label: "Pedidos listos" },
 ];
 
@@ -78,7 +81,9 @@ export default function AdminPage() {
               <div key={step.event}>
                 <div className="flex justify-between text-xs font-semibold">
                   <span>{step.label}</span>
-                  <span className="text-cocoa">{count}</span>
+                  <span className="text-cocoa">
+                    {count} · {pct}%
+                  </span>
                 </div>
                 <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-ink/10">
                   <div
