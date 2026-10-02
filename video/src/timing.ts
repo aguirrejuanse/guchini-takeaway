@@ -65,11 +65,11 @@ export const CUES = {
     copy2: s(10.6),
   },
   admin: {
-    stockIn: s(0.3),
-    stockDrain: s(1.2),
-    soldOut: s(3.2),
-    promoIn: s(4),
-    funnelIn: s(6.2),
+    promoIn: s(0.3),
+    stockIn: s(2.8),
+    stockDrain: s(3.5),
+    soldOut: s(5.4),
+    funnelIn: s(6.8),
   },
   cierre: {
     logo: s(0.1),
