@@ -1,7 +1,8 @@
 # Guchini Takeaway
 
-Functional demo of a first-party online takeaway channel for Guchini, a
-sandwich chain in Mendoza, Argentina. Simulates the full cycle: the
+Functional demo of a first-party online takeaway channel for
+[Guchini](https://www.guchini.com.ar/), a sandwich chain in Mendoza,
+Argentina. Simulates the full cycle: the
 customer orders and pays online, the order lands live on the kitchen
 panel, staff advance its status, and the customer gets notified via
 WhatsApp.
